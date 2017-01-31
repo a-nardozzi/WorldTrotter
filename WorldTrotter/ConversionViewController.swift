@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ConversionViewController: UIViewController{
+class ConversionViewController: UIViewController, UITextFieldDelegate{
     @IBOutlet var celsiusLabel: UILabel!
     @IBOutlet var textField: UITextField!
     var fahrenheitValue: Measurement<UnitTemperature>? {
@@ -27,7 +27,7 @@ class ConversionViewController: UIViewController{
     
     func updateCelsiusLabel(){
         if let celsiusValue = celsiusValue {
-            celsiusLabel.text = "\(celsiusValue.value)"
+            celsiusLabel.text = numberFormatter.string(from: NSNumber(value: celsiusValue.value))
         } else {
             celsiusLabel.text = "???"
         }
@@ -49,5 +49,27 @@ class ConversionViewController: UIViewController{
         super.viewDidLoad()
         
         updateCelsiusLabel()
+    }
+    
+    let numberFormatter: NumberFormatter = {
+        let nf = NumberFormatter()
+        nf.numberStyle = .decimal
+        nf.minimumFractionDigits = 0
+        nf.maximumFractionDigits = 1
+        return nf
+    }()
+    
+    func textField(_ textField: UITextField,
+                   shouldChangeCharactersIn range: NSRange,
+                   replacementString string: String) -> Bool{
+        let existingTextHasDecimalSeperator = textField.text?.range(of: ".")
+        let replacementTextHasDecimalSeperator = string.range(of: ".")
+        
+        if existingTextHasDecimalSeperator != nil,
+            replacementTextHasDecimalSeperator != nil{
+            return false
+        } else {
+            return true
+        }
     }
 }

@@ -55,6 +55,7 @@
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" keyboardType="decimalPad"/>
                                 <connections>
                                     <action selector="fahrenheitFieldEditingChanged:" destination="BYZ-38-t0r" eventType="editingChanged" id="mVT-kx-lPZ"/>
+                                    <outlet property="delegate" destination="BYZ-38-t0r" id="FTU-bR-azH"/>
                                 </connections>
                             </textField>
                         </subviews>
@@ -85,7 +86,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
                 <tapGestureRecognizer id="ErM-DY-SRQ">
                     <connections>
-                        <action selector="dismissKeyboard:" destination="BYZ-38-t0r" id="Euj-N8-f23"/>
+                        <action selector="dismissKeyboard:" destination="BYZ-38-t0r" id="bre-nZ-PJx"/>
                     </connections>
                 </tapGestureRecognizer>
             </objects>
