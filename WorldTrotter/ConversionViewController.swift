@@ -53,6 +53,16 @@ class ConversionViewController: UIViewController, UITextFieldDelegate{
         updateCelsiusLabel()
     }
     
+    override func viewWillAppear(_ loaded: Bool) {
+        super.viewWillAppear(true)
+        let hour = Calendar.current.component(.hour, from: Date())
+        if hour > 17 || hour < 6 {
+            self.view.backgroundColor = UIColor.black
+        }else{
+            self.view.backgroundColor = UIColor.white
+        }
+    }
+    
     let numberFormatter: NumberFormatter = {
         let nf = NumberFormatter()
         nf.numberStyle = .decimal
