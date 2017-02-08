@@ -18,18 +18,18 @@ class WebViewController: UIViewController, WKUIDelegate {
         let webConfiguration = WKWebViewConfiguration()
         webView = WKWebView(frame: .zero, configuration: webConfiguration)
         webView.uiDelegate = self
+        
         view = webView
+        
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        print("view loaded")
-        
-        let myURL = URL(string: "http://www.bignerdranch.com")
+        let myURL = URL(string: "http://www.google.com")
         let myRequest = URLRequest(url: myURL!)
         
         webView.load(myRequest)
+        
     }
     
 }

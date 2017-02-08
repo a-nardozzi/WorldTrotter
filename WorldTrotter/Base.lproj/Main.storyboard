@@ -107,22 +107,6 @@
         <scene sceneID="Bzm-jx-Gjb">
             <objects>
                 <viewController id="N8s-iE-tXJ" customClass="WebViewController" customModule="WorldTrotter" customModuleProvider="target" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="xIV-fT-1Vy"/>
-                        <viewControllerLayoutGuide type="bottom" id="uQL-bj-67U"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="Wf2-pB-mss">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <webView contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="KNU-se-ty9">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="618"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                            </webView>
-                        </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                    </view>
                     <tabBarItem key="tabBarItem" title="Web" id="8w2-gs-ZXc"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="qP6-un-VaN" userLabel="First Responder" sceneMemberID="firstResponder"/>
