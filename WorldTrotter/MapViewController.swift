@@ -8,16 +8,47 @@
 
 import UIKit
 import MapKit
+import CoreLocation
 
-class MapViewController: UIViewController {
+class MapViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate{
     
     var mapView: MKMapView!
+    
+    
+    
+    let locationManager = CLLocationManager()
+    
+    func buttonAction(sender: UIButton!){
+        mapView.showsUserLocation = true
+   //   print(mapView.userLocation.location)
+        
+        //locationManager = CLLocationManager()
+        
+ 
+        
+    }
+    
+    func mapViewWillStartLocatingUser(_ mapView: MKMapView) {
+        print("Start Loading")
+        
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.startUpdatingLocation()
+        
+    }
+    
+    func mapViewDidStopLocatingUser(_ mapView: MKMapView) {
+        print("Stop Loading")
+    }
+    
+
+    
     
     override func loadView() {
         mapView = MKMapView()
         
         view = mapView
-        
+        self.mapView.delegate = self
         let standardString = NSLocalizedString("Standard", comment: "Standard Map View")
         let satelliteString = NSLocalizedString("Satellite", comment: "Satellite Map View")
         let hybridString = NSLocalizedString("Hybrid", comment: "Hybrid Map View")
@@ -39,11 +70,32 @@ class MapViewController: UIViewController {
         topConstraint.isActive = true
         leadingConstraint.isActive = true
         trailingConstraint.isActive = true
+        
+        
+        let userLoc = UIButton()
+        userLoc.backgroundColor = UIColor.white.withAlphaComponent(0.5)
+        userLoc.layer.borderWidth = 1
+        userLoc.layer.borderColor = UIColor.blue.cgColor
+        userLoc.layer.cornerRadius = 5
+        userLoc.translatesAutoresizingMaskIntoConstraints = false
+        userLoc.setTitle(" Find Me ", for: .normal)
+        userLoc.setTitleColor(UIColor.blue, for: .normal)
+        userLoc.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
+        userLoc.tag = 1
+        view.addSubview(userLoc)
+        
+        let userLocBotConstraint = userLoc.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -8)
+        let userLocLeadingConstraint = userLoc.leadingAnchor.constraint(equalTo: margins.leadingAnchor)
+        
+        userLocBotConstraint.isActive = true
+        userLocLeadingConstraint.isActive = true
+        
+        
     }
     
     override func viewDidLoad(){
         super.viewDidLoad()
-        
+        locationManager.requestAlwaysAuthorization()
         print("MapViewController loaded its view.")
     }
     
@@ -52,9 +104,11 @@ class MapViewController: UIViewController {
         case 0:
             mapView.mapType = .standard
         case 1:
-            mapView.mapType = .hybrid
-        case 2:
             mapView.mapType = .satellite
+            mapView.showsUserLocation = false
+        case 2:
+            mapView.mapType = .hybrid
+            mapView.showsUserLocation = true
         default:
             break
         }
