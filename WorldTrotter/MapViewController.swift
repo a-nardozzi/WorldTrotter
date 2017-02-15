@@ -8,43 +8,35 @@
 
 import UIKit
 import MapKit
-import CoreLocation
 
-class MapViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate{
+class MapViewController: UIViewController, MKMapViewDelegate{
     
     var mapView: MKMapView!
     
-    var lastLoc: MKCoordinateRegion!
+    var lastLoc: CLLocationCoordinate2D!
     
-    var currentPress = true
+    var originalLocation: MKCoordinateRegion!
     
     
     let locationManager = CLLocationManager()
     
-    func locateMe(sender: UIButton!){
-        if(currentPress){
+    func locateMe(_ sender: UIButton!) {
+        
+        
+        if(!mapView.showsUserLocation){
+            print("locating")
             mapView.showsUserLocation = true
-            mapView.showsUserLocation = false
-            currentPress = false
+            lastLoc = mapView.centerCoordinate
+            mapView.setCenter(mapView.userLocation.coordinate, animated: true)
+            
         } else {
-            mapView.setRegion(lastLoc, animated: true)
-            currentPress = true
+            mapView.showsUserLocation = false
+            mapView.setCenter(lastLoc, animated: true)
         }
     }
     
     func mapViewWillStartLocatingUser(_ mapView: MKMapView) {
         print("Started Loading Location")
-        
-        
-        
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.startUpdatingLocation()
-        
-        lastLoc = mapView.region
-        
-        let region = MKCoordinateRegionMakeWithDistance((locationManager.location?.coordinate)!, 1000, 1000)
-        mapView.setRegion(region, animated: true)
         
         
     }
@@ -53,7 +45,8 @@ class MapViewController: UIViewController, CLLocationManagerDelegate, MKMapViewD
         print("Stopped Loading Location")
     }
     
-  
+    var pinLocations: [CLLocationCoordinate2D] = [CLLocationCoordinate2DMake(42.2495, -71.0662),CLLocationCoordinate2DMake(35.9732,-79.9950),CLLocationCoordinate2DMake(41.6688, -70.2962)]
+    
 
     
     
@@ -62,7 +55,9 @@ class MapViewController: UIViewController, CLLocationManagerDelegate, MKMapViewD
         
         view = mapView
         self.mapView.delegate = self
+        originalLocation = MKCoordinateRegionMakeWithDistance(mapView.centerCoordinate, 10000000, 10000000)
         locationManager.requestAlwaysAuthorization()
+        
         
         let standardString = NSLocalizedString("Standard", comment: "Standard Map View")
         let satelliteString = NSLocalizedString("Satellite", comment: "Satellite Map View")
@@ -96,7 +91,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate, MKMapViewD
         userLoc.translatesAutoresizingMaskIntoConstraints = false
         userLoc.setTitle(" Find Me ", for: .normal)
         userLoc.setTitleColor(UIColor.blue, for: .normal)
-        userLoc.addTarget(self, action: #selector(locateMe), for: .touchUpInside)
+        userLoc.addTarget(self, action: #selector(locateMe(_:)), for: .touchUpInside)
         
         userLoc.tag = 1
         view.addSubview(userLoc)
@@ -107,16 +102,17 @@ class MapViewController: UIViewController, CLLocationManagerDelegate, MKMapViewD
         userLocBotConstraint.isActive = true
         userLocLeadingConstraint.isActive = true
         
+        
         //-----Pin Tracker
         let bornAnnotation = MKPointAnnotation()
-        bornAnnotation.coordinate = CLLocationCoordinate2D(latitude: 42.2513, longitude: -71.0773)
-        bornAnnotation.title = "Born Here"
+        bornAnnotation.coordinate = pinLocations[0]
+        bornAnnotation.title = "Born Here, Milton MA"
         let currentAnnotation = MKPointAnnotation()
-        currentAnnotation.coordinate = CLLocationCoordinate2D(latitude: 35.9732, longitude: -79.9950)
-        currentAnnotation.title = "Currently Here"
+        currentAnnotation.coordinate = pinLocations[1]
+        currentAnnotation.title = "Currently Here, High Point NC"
         let interestAnnotation = MKPointAnnotation()
-        interestAnnotation.coordinate = CLLocationCoordinate2D(latitude: 44.5437, longitude: -72.8143)
-        interestAnnotation.title = "Been Here"
+        interestAnnotation.coordinate = pinLocations[2]
+        interestAnnotation.title = "Been Here, Cape Cod MA"
         
         mapView.addAnnotation(bornAnnotation)
         mapView.addAnnotation(currentAnnotation)
@@ -125,11 +121,13 @@ class MapViewController: UIViewController, CLLocationManagerDelegate, MKMapViewD
         let pins = UIButton()
         pins.backgroundColor = UIColor.white.withAlphaComponent(0.5)
         pins.layer.borderWidth = 1
-        pins.layer.borderColor = UIColor.blue.cgColor
         pins.layer.cornerRadius = 5
+        
+        pins.layer.borderColor = UIColor.blue.cgColor
         pins.translatesAutoresizingMaskIntoConstraints = false
         pins.setTitle(" Pins ", for: .normal)
         pins.setTitleColor(UIColor.blue, for: .normal)
+        pins.addTarget(self, action: #selector(cyclePins), for: .touchUpInside)
         
     
         
@@ -142,22 +140,26 @@ class MapViewController: UIViewController, CLLocationManagerDelegate, MKMapViewD
         pinsBotConstraint.isActive = true
         pinsTrailingConstraint.isActive = true
         
+        originalLocation = MKCoordinateRegionMakeWithDistance(mapView.centerCoordinate, 1000000, 1000000)
+        
     }
+    
     
     var pinNumber = 0
     func cyclePins(){
-        var rgn: CLLocationCoordinate2D
-        if(pinNumber == 0) {
-            rgn.init(latitude: 42.2513, longitude: -71.0773)
-            MKCoordinateRegionMakeWithDistance(rgn, 1000, 1000)
+        var rgn: MKCoordinateRegion
+        if(pinNumber%4 < 3) {
+            rgn = MKCoordinateRegionMakeWithDistance(pinLocations[pinNumber%4], 10000, 10000)
+            mapView.setRegion(rgn, animated: true)
+        } else {
+            mapView.setRegion(originalLocation, animated: true)
+            
         }
-        
-        
+        pinNumber = pinNumber + 1
     }
     
     override func viewDidLoad(){
         super.viewDidLoad()
-        locationManager.requestAlwaysAuthorization()
         print("MapViewController loaded its view.")
     }
     
