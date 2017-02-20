@@ -12,42 +12,39 @@ import MapKit
 class MapViewController: UIViewController, MKMapViewDelegate{
     
     var mapView: MKMapView!
-    
     var lastLoc: CLLocationCoordinate2D!
-    
-    var originalLocation: MKCoordinateRegion!
-    
-    
     let locationManager = CLLocationManager()
     
+    
+    //Function called when "Find Me" button is pressed
+    //If not currently showing the users location, records the current map view in lastLoc
+    //then jumps to the users current location. If currently showing the users location, stops
+    //tracking them and jumps to the value held in lastLoc
     func locateMe(_ sender: UIButton!) {
-        
-        
         if(!mapView.showsUserLocation){
-            print("locating")
             mapView.showsUserLocation = true
-            lastLoc = mapView.centerCoordinate
-            mapView.setCenter(mapView.userLocation.coordinate, animated: true)
-            
         } else {
             mapView.showsUserLocation = false
-            mapView.setCenter(lastLoc, animated: true)
         }
     }
     
     func mapViewWillStartLocatingUser(_ mapView: MKMapView) {
         print("Started Loading Location")
-        
-        
+        lastLoc = mapView.centerCoordinate
+        mapView.setCenter(mapView.userLocation.coordinate, animated: true)
     }
     
     func mapViewDidStopLocatingUser(_ mapView: MKMapView) {
         print("Stopped Loading Location")
+        mapView.setCenter(lastLoc, animated: true)
     }
-    
-    var pinLocations: [CLLocationCoordinate2D] = [CLLocationCoordinate2DMake(42.2495, -71.0662),CLLocationCoordinate2DMake(35.9732,-79.9950),CLLocationCoordinate2DMake(41.6688, -70.2962)]
-    
 
+    //Array to hold the annotations in the following indices:
+    //0 - bornAnnotation
+    //1 - currentAnnotation
+    //2 - interestAnnotation
+    var pinLocations: [MKPointAnnotation] = []
+    
     
     
     override func loadView() {
@@ -55,7 +52,6 @@ class MapViewController: UIViewController, MKMapViewDelegate{
         
         view = mapView
         self.mapView.delegate = self
-        originalLocation = MKCoordinateRegionMakeWithDistance(mapView.centerCoordinate, 10000000, 10000000)
         locationManager.requestAlwaysAuthorization()
         
         
@@ -92,31 +88,31 @@ class MapViewController: UIViewController, MKMapViewDelegate{
         userLoc.setTitle(" Find Me ", for: .normal)
         userLoc.setTitleColor(UIColor.blue, for: .normal)
         userLoc.addTarget(self, action: #selector(locateMe(_:)), for: .touchUpInside)
-        
-        userLoc.tag = 1
         view.addSubview(userLoc)
         
         let userLocBotConstraint = userLoc.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -8)
         let userLocLeadingConstraint = userLoc.leadingAnchor.constraint(equalTo: margins.leadingAnchor)
-        
         userLocBotConstraint.isActive = true
         userLocLeadingConstraint.isActive = true
         
         
         //-----Pin Tracker
         let bornAnnotation = MKPointAnnotation()
-        bornAnnotation.coordinate = pinLocations[0]
-        bornAnnotation.title = "Born Here, Milton MA"
+        pinLocations.append(bornAnnotation)
         let currentAnnotation = MKPointAnnotation()
-        currentAnnotation.coordinate = pinLocations[1]
-        currentAnnotation.title = "Currently Here, High Point NC"
+        pinLocations.append(currentAnnotation)
         let interestAnnotation = MKPointAnnotation()
-        interestAnnotation.coordinate = pinLocations[2]
-        interestAnnotation.title = "Been Here, Cape Cod MA"
-        
-        mapView.addAnnotation(bornAnnotation)
-        mapView.addAnnotation(currentAnnotation)
-        mapView.addAnnotation(interestAnnotation)
+        pinLocations.append(interestAnnotation)
+
+        pinLocations[0].coordinate = CLLocationCoordinate2DMake(42.2495, -71.0662)
+        pinLocations[0].title = "Born Here"
+        pinLocations[0].subtitle = "Milton, MA"
+        pinLocations[1].coordinate = CLLocationCoordinate2DMake(35.9732,-79.9950)
+        pinLocations[1].title = "Currently Here"
+        pinLocations[1].subtitle = "High Point, NC"
+        pinLocations[2].coordinate = CLLocationCoordinate2DMake(40.0150, -105.2705)
+        pinLocations[2].title = "Been Here"
+        pinLocations[2].subtitle = "Boulder, CO"
         
         let pins = UIButton()
         pins.backgroundColor = UIColor.white.withAlphaComponent(0.5)
@@ -128,31 +124,33 @@ class MapViewController: UIViewController, MKMapViewDelegate{
         pins.setTitle(" Pins ", for: .normal)
         pins.setTitleColor(UIColor.blue, for: .normal)
         pins.addTarget(self, action: #selector(cyclePins), for: .touchUpInside)
-        
-    
-        
-        pins.tag = 2
         view.addSubview(pins)
         
         let pinsBotConstraint = pins.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: -8)
         let pinsTrailingConstraint = pins.trailingAnchor.constraint(equalTo: margins.trailingAnchor)
-        
         pinsBotConstraint.isActive = true
         pinsTrailingConstraint.isActive = true
         
-        originalLocation = MKCoordinateRegionMakeWithDistance(mapView.centerCoordinate, 1000000, 1000000)
         
     }
     
     
     var pinNumber = 0
+    //Function to cycle through pins with every click of the "pins" button. 
+    //On the fourth click will bring the map back to the default view.
     func cyclePins(){
-        var rgn: MKCoordinateRegion
+        mapView.removeAnnotations(pinLocations)
+        
         if(pinNumber%4 < 3) {
-            rgn = MKCoordinateRegionMakeWithDistance(pinLocations[pinNumber%4], 10000, 10000)
-            mapView.setRegion(rgn, animated: true)
+            let coord = pinLocations[pinNumber%4].coordinate
+            if(coord.latitude != mapView.centerCoordinate.latitude || coord.longitude != mapView.centerCoordinate.longitude){
+                lastLoc = mapView.centerCoordinate
+            }
+            mapView.addAnnotation(pinLocations[pinNumber%4])
+            mapView.selectAnnotation(pinLocations[pinNumber%4], animated: true)
+            mapView.setCenter(pinLocations[pinNumber%4].coordinate, animated: true)
         } else {
-            mapView.setRegion(originalLocation, animated: true)
+            mapView.setCenter(lastLoc, animated: true)
             
         }
         pinNumber = pinNumber + 1
